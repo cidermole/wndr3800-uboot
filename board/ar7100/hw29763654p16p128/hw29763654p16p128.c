@@ -18,6 +18,9 @@
 #include <version.h>
 #include <linux/string.h>
 #include "ar7100_soc.h"
+#ifdef CONFIG_HW_WATCHDOG
+#include <watchdog.h>
+#endif /* CONFIG_HW_WATCHDOG */
 #ifdef CFG_NMRP
 extern int NmrpState;
 extern ulong NmrpAliveTimerStart;
@@ -417,3 +420,74 @@ void board_update_image_model_id (ulong fw_image_addr)
     printf("done\n\n");
 }
 #endif	/* BOARD_ID */
+
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+
+void bootcount_store (ulong count)
+{
+    // bootcount stored in env in common/main.c
+}
+
+ulong bootcount_load (void)
+{
+    unsigned long bootcount;
+    char *bcs;
+    bcs = getenv ("bootcount");
+    bootcount = bcs ? simple_strtoul (bcs, NULL, 10) : 0;
+    return bootcount;
+}
+
+#endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+#ifdef CONFIG_HW_WATCHDOG
+
+#define AR71XX_RESET_REG_WDOG_CTRL		0x08
+#define AR71XX_RESET_REG_WDOG			0x0c
+#define WDOG_CTRL_ACTION_FCR		3	/* full chip reset */
+#define WDT_TIMEOUT_DEFAULT 60 /* seconds */
+
+// code adapted from target/linux/ar71xx/files/drivers/watchdog/ar71xx_wdt.c
+
+static inline void ar71xx_reset_wr(unsigned reg, u32 val)
+{
+    ar7100_reg_wr_nf(AR7100_RESET_BASE + reg, val);
+}
+
+static inline void ar71xx_wdt_keepalive(void)
+{
+    u32 ahb_freq = 100000000;
+    u32 wdt_timeout = WDT_TIMEOUT_DEFAULT;
+    char *wts;
+
+    ar7100_sys_frequency (0, 0, &ahb_freq);
+    if((wts = getenv("wdt_timeout")) != NULL)
+        wdt_timeout = simple_strtoul(wts, NULL, 10);
+    ar71xx_reset_wr(AR71XX_RESET_REG_WDOG, ahb_freq * wdt_timeout);
+}
+
+static inline void ar71xx_wdt_enable(void)
+{
+    printf("Enabling watchdog timer with wdt_timeout s timeout\n");
+    ar71xx_wdt_keepalive();
+    udelay(2);
+    ar71xx_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_FCR);
+}
+
+void hw_watchdog_reset(void)
+{
+    ar71xx_wdt_keepalive();
+}
+
+
+int do_ar71xx_wdt_enable (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+    ar71xx_wdt_enable();
+    return 0;
+}
+
+U_BOOT_CMD(wdt_enable, 1, 0, do_ar71xx_wdt_enable, 
+        "wdt_enable - enable watchdog timer.\n",
+        "- enable watchdog timer with wdt_timeout s timeout.\n");
+
+#endif /* CONFIG_HW_WATCHDOG */
+
