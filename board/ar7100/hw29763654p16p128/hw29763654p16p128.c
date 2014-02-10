@@ -18,9 +18,6 @@
 #include <version.h>
 #include <linux/string.h>
 #include "ar7100_soc.h"
-#ifdef CONFIG_HW_WATCHDOG
-#include <watchdog.h>
-#endif /* CONFIG_HW_WATCHDOG */
 #ifdef CFG_NMRP
 extern int NmrpState;
 extern ulong NmrpAliveTimerStart;
@@ -439,7 +436,7 @@ ulong bootcount_load (void)
 
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
-#ifdef CONFIG_HW_WATCHDOG
+#ifdef CONFIG_MY_WATCHDOG
 
 #define AR71XX_RESET_REG_WDOG_CTRL		0x08
 #define AR71XX_RESET_REG_WDOG			0x0c
@@ -489,5 +486,5 @@ U_BOOT_CMD(wdt_enable, 1, 0, do_ar71xx_wdt_enable,
         "wdt_enable - enable watchdog timer.\n",
         "- enable watchdog timer with wdt_timeout s timeout.\n");
 
-#endif /* CONFIG_HW_WATCHDOG */
+#endif /* CONFIG_MY_WATCHDOG */
 

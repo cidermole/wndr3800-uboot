@@ -7,7 +7,8 @@
 
 #include <configs/ar7100.h>
 
-#undef CONFIG_JFFS2_CMDLINE
+//#undef CONFIG_JFFS2_CMDLINE
+//#define CONFIG_JFFS2_CMDLINE
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -36,6 +37,8 @@
 #define CFG_FLASH_BASE          0xbf000000
 #define FIRMWARE_INTEGRITY_CHECK 1
 #define FIRMWARE_RECOVER_FROM_TFTP_SERVER 1
+
+#define CONFIG_MY_WATCHDOG
 
 
 #ifdef FIRMWARE_RECOVER_FROM_TFTP_SERVER
