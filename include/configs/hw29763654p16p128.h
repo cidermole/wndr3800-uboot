@@ -7,8 +7,7 @@
 
 #include <configs/ar7100.h>
 
-//#undef CONFIG_JFFS2_CMDLINE
-//#define CONFIG_JFFS2_CMDLINE
+#undef CONFIG_JFFS2_CMDLINE
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
