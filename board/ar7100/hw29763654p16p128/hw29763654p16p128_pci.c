@@ -21,6 +21,9 @@
 #include <pci.h>
 #include "ar7100_soc.h"
 
+static int 
+ar7100_pci_write_config(struct pci_controller *hose, pci_dev_t dev, int offset, u32 value);
+
 /*
 ** PCI controller "hose" value
 */
