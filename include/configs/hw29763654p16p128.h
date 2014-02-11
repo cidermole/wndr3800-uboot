@@ -9,6 +9,9 @@
 
 #undef CONFIG_JFFS2_CMDLINE
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
@@ -43,7 +46,8 @@
 #ifdef FIRMWARE_RECOVER_FROM_TFTP_SERVER
 /*change image length to 0xe40000, it is consistent with bootargs rootfs mtd partion */
 #define CFG_IMAGE_LEN   0xe40000
-#define CFG_IMAGE_BASE_ADDR (CFG_FLASH_BASE + 0x70000)
+#define CFG_IMAGE_PARTITION_OFFSET 0x70000
+#define CFG_IMAGE_BASE_ADDR (CFG_FLASH_BASE + CFG_IMAGE_PARTITION_OFFSET)
 #define CFG_IMAGE_ADDR_BEGIN (CFG_IMAGE_BASE_ADDR)
 #define CFG_IMAGE_ADDR_END   (CFG_IMAGE_BASE_ADDR + CFG_IMAGE_LEN)
 #define CFG_FLASH_CONFIG_BASE               (CFG_IMAGE_ADDR_END)
@@ -130,7 +134,8 @@
 */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-"clearenv=erase 0xbf050000 +0x10000\0"
+"clearenv=erase 0xbf050000 +0x10000\0" \
+"bootpart_start=" TOSTRING(CFG_IMAGE_PARTITION_OFFSET) "\0"
 
 #define CONFIG_NR_DRAM_BANKS    		2
 
@@ -240,7 +245,8 @@
 #define CFG_HUSH_PARSER
 #define CFG_PROMPT_HUSH_PS2 "hush>"
 
-#define CONFIG_JFFS2_PART_OFFSET	0x70040
+#define CONFIG_JFFS2_PART_FS_OFFSET           0x40
+#define CONFIG_JFFS2_PART_OFFSET	(CFG_IMAGE_PARTITION_OFFSET + CONFIG_JFFS2_PART_FS_OFFSET)
 
 #include <cmd_confdefs.h>
 
