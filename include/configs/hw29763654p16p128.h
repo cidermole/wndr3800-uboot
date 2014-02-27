@@ -44,8 +44,8 @@
 
 
 #ifdef FIRMWARE_RECOVER_FROM_TFTP_SERVER
-/*change image length to 0xe40000, it is consistent with bootargs rootfs mtd partion */
-#define CFG_IMAGE_LEN   0xe40000
+/*image length consistent with bootargs rootfs mtd partion */
+#define CFG_IMAGE_LEN   0x7c0000
 #define CFG_IMAGE_PARTITION_OFFSET 0x70000
 #define CFG_IMAGE_BASE_ADDR (CFG_FLASH_BASE + CFG_IMAGE_PARTITION_OFFSET)
 #define CFG_IMAGE_ADDR_BEGIN (CFG_IMAGE_BASE_ADDR)
