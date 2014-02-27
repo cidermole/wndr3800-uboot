@@ -2000,6 +2000,17 @@ void update_firmware(ulong addr, int firmware_size)
 	int max_overflow;
 	ulong previous_timestamp;
 	ulong current_timestamp;
+	char *bootpart_starts;
+	u32 bootpart_start;
+	u32 image_addr_begin;
+
+	/* set boot partition address from env 'bootpart_start', if present */
+	if((bootpart_starts = getenv("bootpart_start")) != NULL) {
+		bootpart_start = simple_strtoul(bootpart_starts, &bootpart_starts, CFG_IMAGE_PARTITION_OFFSET);
+	} else {
+		bootpart_start = CFG_IMAGE_PARTITION_OFFSET;
+	}
+	image_addr_begin = CFG_FLASH_BASE + bootpart_start;
 
 	timestamp_overflow_time = ~0UL / CFG_HZ;
 	max_overflow = (NMRP_TIMEOUT_ACTIVE / timestamp_overflow_time);
@@ -2011,9 +2022,9 @@ void update_firmware(ulong addr, int firmware_size)
 	     offset_num < ((firmware_size / CFG_FLASH_SECTOR_SIZE) + 1);
 	     offset_num++) {
 		/* erase 64K */
-		flash_sect_erase(CFG_IMAGE_ADDR_BEGIN +
+		flash_sect_erase(image_addr_begin +
 				 offset_num * CFG_FLASH_SECTOR_SIZE,
-				 CFG_IMAGE_ADDR_BEGIN +
+				 image_addr_begin +
 				 ((offset_num + 1) * CFG_FLASH_SECTOR_SIZE) - 1);
 
 		/* Check if Alive-timer expires? */
@@ -2033,8 +2044,10 @@ void update_firmware(ulong addr, int firmware_size)
 		}
 	}
 #elif defined(CONFIG_WNR1000V2) || defined(CONFIG_WNR1100) || defined(CONFIG_WNR612) || defined(CONFIG_WNR2200) || defined(CONFIG_WNR2000V3) || defined(CONFIG_WNDR3700V1H2) || defined(CONFIG_HW29763654P16P128)
-	flash_sect_erase (CFG_IMAGE_ADDR_BEGIN, CFG_IMAGE_ADDR_END-1);
+	// adapted for bootpart_start
+	flash_sect_erase (image_addr_begin, image_addr_begin + CFG_IMAGE_LEN - 1);
 #else
+	// not adapted for bootpart_start (not used in WNDR3800)
 	unsigned int s_first,s_end;
 	s_first = flash_in_which_sec (&flash_info[0], CFG_IMAGE_ADDR_BEGIN - flash_info[0].start[0]);
 	s_end = flash_in_which_sec (&flash_info[0], CFG_IMAGE_ADDR_END - flash_info[0].start[0]) - 1;
@@ -2047,7 +2060,7 @@ void update_firmware(ulong addr, int firmware_size)
 	     offset_num < ((firmware_size / CFG_FLASH_SECTOR_SIZE) + 1);
 	     offset_num++) {
 		src_addr = addr + offset_num * CFG_FLASH_SECTOR_SIZE;
-		target_addr = CFG_IMAGE_ADDR_BEGIN +
+		target_addr = image_addr_begin +
 			      (offset_num * CFG_FLASH_SECTOR_SIZE);
 		flash_write(src_addr, target_addr, CFG_FLASH_SECTOR_SIZE);
 
@@ -2068,6 +2081,7 @@ void update_firmware(ulong addr, int firmware_size)
 		}
 	}
 #else
+	// not adapted for bootpart_start (not used in WNDR3800)
 	flash_write ((uchar *)addr, CFG_IMAGE_ADDR_BEGIN , CFG_IMAGE_LEN);
 #endif
 #ifdef CFG_NMRP
