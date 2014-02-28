@@ -288,6 +288,8 @@ static __inline__ int abortboot(int bootdelay)
 
 /****************************************************************************/
 
+u32 flash_get_bootpart_start();
+
 void main_loop (void)
 {
 #ifndef CFG_HUSH_PARSER
@@ -326,7 +328,8 @@ void main_loop (void)
 	//char *bootm_ecos = "bootm $ecos";
 	int len;
 	ulong data, checksum;
-	image_header_t *hdr = (image_header_t *)(CFG_FLASH_BASE + CONFIG_JFFS2_PART_OFFSET - 0x40 );
+	/* set boot partition address from env 'bootpart_start', if present */
+	image_header_t *hdr = (image_header_t *)(CFG_FLASH_BASE + flash_get_bootpart_start());
 #endif
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
