@@ -1985,6 +1985,8 @@ unsigned int flash_in_which_sec (flash_info_t *f1, unsigned int offset)
 }
 #endif
 
+extern u32 flash_get_bootpart_start();
+
 void update_firmware(ulong addr, int firmware_size)
 {
 	if (firmware_size <= 0) {
@@ -2000,17 +2002,10 @@ void update_firmware(ulong addr, int firmware_size)
 	int max_overflow;
 	ulong previous_timestamp;
 	ulong current_timestamp;
-	char *bootpart_starts;
-	u32 bootpart_start;
 	u32 image_addr_begin;
 
 	/* set boot partition address from env 'bootpart_start', if present */
-	if((bootpart_starts = getenv("bootpart_start")) != NULL) {
-		bootpart_start = simple_strtoul(bootpart_starts, &bootpart_starts, CFG_IMAGE_PARTITION_OFFSET);
-	} else {
-		bootpart_start = CFG_IMAGE_PARTITION_OFFSET;
-	}
-	image_addr_begin = CFG_FLASH_BASE + bootpart_start;
+	image_addr_begin = CFG_FLASH_BASE + flash_get_bootpart_start();
 
 	timestamp_overflow_time = ~0UL / CFG_HZ;
 	max_overflow = (NMRP_TIMEOUT_ACTIVE / timestamp_overflow_time);

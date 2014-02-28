@@ -249,3 +249,19 @@ ar7100_spi_sector_erase(uint32_t addr)
     display(0x7d);
     ar7100_spi_poll();
 }
+
+u32
+flash_get_bootpart_start()
+{
+char *bootpart_starts;
+    u32 bootpart_start;
+    u32 image_addr_begin;
+
+    /* set boot partition address from env 'bootpart_start', if present */
+    if((bootpart_starts = getenv("bootpart_start")) != NULL) {
+        bootpart_start = simple_strtoul(bootpart_starts, &bootpart_starts, CFG_IMAGE_PARTITION_OFFSET);
+    } else {
+        bootpart_start = CFG_IMAGE_PARTITION_OFFSET;
+    }
+    return bootpart_start;
+}

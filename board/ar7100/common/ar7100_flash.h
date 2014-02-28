@@ -58,5 +58,6 @@
 
 
 unsigned long  flash_get_geom (flash_info_t *flash_info);
+u32 flash_get_bootpart_start();
 
 #endif /*_FLASH_H*/

@@ -1703,6 +1703,8 @@ int mtdparts_init(void)
  * a single device configuration.
  */
 
+u32 flash_get_bootpart_start();
+
 /**
  * Parse and initialize global mtdids mapping and create global
  * device/partition list.
@@ -1714,8 +1716,6 @@ int mtdparts_init(void)
 	static int initialized = 0;
 	u32 size;
 	char *dev_name;
-	char *bootpart_starts;
-	u32 bootpart_start;
 
 	DEBUGF("\n---mtdparts_init---\n");
 	if (!initialized) {
@@ -1775,10 +1775,7 @@ int mtdparts_init(void)
 #endif
 
 		/* set boot partition address from env 'bootpart_start', if present */
-		if((bootpart_starts = getenv("bootpart_start")) != NULL) {
-			bootpart_start = simple_strtoul(bootpart_starts, &bootpart_starts, CFG_IMAGE_PARTITION_OFFSET);
-			part->offset = bootpart_start + CONFIG_JFFS2_PART_FS_OFFSET; // bootpart_start + 0x40
-		}
+		part->offset = flash_get_bootpart_start() + CONFIG_JFFS2_PART_FS_OFFSET; // bootpart_start + 0x40
 
 		part->dev = current_dev;
 		INIT_LIST_HEAD(&part->link);
